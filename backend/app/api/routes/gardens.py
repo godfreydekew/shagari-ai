@@ -10,7 +10,7 @@ from app.api.deps import (
     SessionDep,
     get_current_active_superuser,
 )
-from app.models import Garden, GardenCreate, GardenUpdate, GardensPublic
+from app.models import Garden, GardenCreate, GardenUpdate, GardensPublic, GardenPublic
 
 router = APIRouter(prefix="/gardens", tags=["gardens"])
 
@@ -39,3 +39,19 @@ def read_gardens(
         raise HTTPException(status_code=404, detail="No gardens found")
     
     return GardensPublic(data=gardens, count=count)
+
+@router.post("/", response_model=GardenPublic)
+def create_garden(
+    session: SessionDep,
+    current_user: CurrentUser,
+    garden_in: GardenCreate
+) -> Any:
+    """
+    Create a new garden.
+    """
+    
+    garden = Garden.model_validate(garden_in, update={"owner_id": current_user.id})
+    session.add(garden)
+    session.commit()
+    session.refresh(garden)
+    return garden
