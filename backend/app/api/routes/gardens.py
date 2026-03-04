@@ -10,7 +10,7 @@ from app.api.deps import (
     SessionDep,
     get_current_active_superuser,
 )
-from app.models import Garden, GardenCreate, GardenUpdate, GardensPublic, GardenPublic
+from app.models import Garden, GardenCreate, GardenUpdate, GardensPublic, GardenPublic, Message
 
 router = APIRouter(prefix="/gardens", tags=["gardens"])
 
@@ -55,3 +55,16 @@ def create_garden(
     session.commit()
     session.refresh(garden)
     return garden
+
+@router.delete("/{garden_id}", response_model=GardenPublic)
+def delete_garden(
+    session: SessionDep, 
+    garden_id: uuid.UUID
+    ) -> Message:
+    """
+    Delete a garden.
+    """
+    garden = session.get(Garden, garden_id)
+    if not garden:
+        raise HTTPException(status_code=404, detail="Garden not found")
+    session.delete(garden)
