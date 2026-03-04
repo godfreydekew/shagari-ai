@@ -10,7 +10,7 @@ from app.api.deps import (
     SessionDep,
     get_current_active_superuser,
 )
-from app.models import Plant, PlantCreate, PlantUpdate, PlantsPublic, PlantPublic
+from app.models import Plant, PlantCreate, PlantUpdate, PlantsPublic, PlantPublic, Message
 
 router = APIRouter(prefix="/plants", tags=["plants"])
 
@@ -51,3 +51,22 @@ def create_plant(
     session.commit()
     session.refresh(plant)
     return plant
+
+@router.delete("/{plant_id}", response_model=PlantPublic)
+def delete_plant(
+    session: SessionDep, 
+    plant_id: uuid.UUID
+    ) -> Message:
+    """
+    Delete a plant.
+    """
+    plant = session.get(Plant, plant_id)
+    
+    if not plant:
+        raise HTTPException(status_code=404, detail="Plant not found")
+    
+    session.delete(plant)
+    session.commit()
+    session.refresh(plant)
+    return Message(message="Plant deleted successfully")
+
