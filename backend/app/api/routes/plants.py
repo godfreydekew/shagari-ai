@@ -70,3 +70,25 @@ def delete_plant(
     session.refresh(plant)
     return Message(message="Plant deleted successfully")
 
+@router.patch("/{plant_id}", response_model=PlantPublic)
+def update_plant(
+    plant_id: uuid.UUID, 
+    plant_update: PlantUpdate, 
+    session: SessionDep
+    ) -> PlantPublic:
+    """
+    Update a plant.
+    """
+    db_plant = session.get(Plant, plant_id)
+    
+    if not db_plant:
+        raise HTTPException(status_code=404, detail="Plant not found")
+    plant_data = plant_update.model_dump(exclude_unset=True)
+    db_plant.sqlmodel_update(plant_data)
+    session.add(db_plant)
+    session.commit()
+    session.refresh(db_plant)
+    return db_plant
+    
+    
+    
