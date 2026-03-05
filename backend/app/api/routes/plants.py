@@ -55,7 +55,9 @@ def create_plant(
 @router.delete("/{plant_id}", response_model=PlantPublic)
 def delete_plant(
     session: SessionDep, 
-    plant_id: uuid.UUID
+    plant_id: uuid.UUID,
+    garden_id: uuid.UUID,
+    current_user: CurrentUser
     ) -> Message:
     """
     Delete a plant.
@@ -64,7 +66,9 @@ def delete_plant(
     
     if not plant:
         raise HTTPException(status_code=404, detail="Plant not found")
-    
+    if plant.garden_id != garden_id:
+        raise HTTPException(status_code=403, detail="Plant not found in this garden")
+
     session.delete(plant)
     session.commit()
     session.refresh(plant)
@@ -74,13 +78,15 @@ def delete_plant(
 def update_plant(
     plant_id: uuid.UUID, 
     plant_update: PlantUpdate, 
-    session: SessionDep
+    session: SessionDep,
+    current_user: CurrentUser
     ) -> PlantPublic:
     """
     Update a plant.
     """
     db_plant = session.get(Plant, plant_id)
-    
+    if db_plant.garden_id != current_user.garden_id:
+        raise HTTPException(status_code=403, detail="Plant not found in this garden")
     if not db_plant:
         raise HTTPException(status_code=404, detail="Plant not found")
     plant_data = plant_update.model_dump(exclude_unset=True)
