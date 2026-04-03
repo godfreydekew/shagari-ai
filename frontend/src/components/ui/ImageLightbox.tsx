@@ -8,7 +8,12 @@ interface ImageLightboxProps {
   onClose: () => void;
 }
 
-export default function ImageLightbox({ src, alt, open, onClose }: ImageLightboxProps) {
+export default function ImageLightbox({
+  src,
+  alt,
+  open,
+  onClose,
+}: ImageLightboxProps) {
   const zoomLevels = [
     { value: 1, className: "scale-100" },
     { value: 1.25, className: "scale-125" },
@@ -50,7 +55,10 @@ export default function ImageLightbox({ src, alt, open, onClose }: ImageLightbox
       aria-modal="true"
       aria-label="Image zoom viewer"
     >
-      <div className="flex items-center justify-between p-4" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="flex items-center justify-between p-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -65,7 +73,9 @@ export default function ImageLightbox({ src, alt, open, onClose }: ImageLightbox
           </span>
           <button
             type="button"
-            onClick={() => setZoomIndex((i) => Math.min(zoomLevels.length - 1, i + 1))}
+            onClick={() =>
+              setZoomIndex((i) => Math.min(zoomLevels.length - 1, i + 1))
+            }
             className="w-9 h-9 rounded-full bg-white/15 text-white flex items-center justify-center hover:bg-white/25"
             title="Zoom in"
           >
@@ -82,7 +92,10 @@ export default function ImageLightbox({ src, alt, open, onClose }: ImageLightbox
         </button>
       </div>
 
-      <div className="flex-1 overflow-auto p-4" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="flex-1 overflow-auto p-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="min-h-full min-w-full flex items-center justify-center">
           <img
             src={src}

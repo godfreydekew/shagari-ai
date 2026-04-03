@@ -18,8 +18,15 @@ const seasons: { key: keyof PlantPublic; label: string; emoji: string }[] = [
   { key: "winter_care", label: "Winter", emoji: "❄️" },
 ];
 
-export default function GardenBookletView({ title, subtitle, plants, generatedFor }: GardenBookletViewProps) {
-  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+export default function GardenBookletView({
+  title,
+  subtitle,
+  plants,
+  generatedFor,
+}: GardenBookletViewProps) {
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(
+    null,
+  );
   const references = useMemo(() => plants.filter((p) => p.reference), [plants]);
 
   const today = new Date().toLocaleDateString("en-GB", {
@@ -46,7 +53,9 @@ export default function GardenBookletView({ title, subtitle, plants, generatedFo
       <div className="booklet-print-root max-w-5xl mx-auto px-4 py-6 md:px-8 md:py-8 space-y-6">
         <div className="no-print flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-display font-bold text-foreground">{title}</h1>
+            <h1 className="text-2xl font-display font-bold text-foreground">
+              {title}
+            </h1>
             <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
           </div>
           <button
@@ -67,9 +76,15 @@ export default function GardenBookletView({ title, subtitle, plants, generatedFo
             <FileText className="text-primary-foreground" size={36} />
           </div>
           <div className="space-y-1">
-            <p className="text-xs font-medium uppercase tracking-widest text-primary-foreground/70">Garden Handbook</p>
-            <h2 className="text-2xl font-display font-bold text-primary-foreground">{title}</h2>
-            <p className="text-sm text-primary-foreground/80">Prepared for {generatedFor}</p>
+            <p className="text-xs font-medium uppercase tracking-widest text-primary-foreground/70">
+              Garden Handbook
+            </p>
+            <h2 className="text-2xl font-display font-bold text-primary-foreground">
+              {title}
+            </h2>
+            <p className="text-sm text-primary-foreground/80">
+              Prepared for {generatedFor}
+            </p>
           </div>
           <div className="pt-2 border-t border-primary-foreground/20 text-xs text-primary-foreground/60 space-y-0.5">
             <p>{plants.length} plants documented</p>
@@ -83,22 +98,40 @@ export default function GardenBookletView({ title, subtitle, plants, generatedFo
           transition={{ delay: 0.1 }}
           className="card-botanical p-6 space-y-3 print:break-after-page"
         >
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-primary">Contents</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-primary">
+            Contents
+          </h2>
           <ol className="space-y-2">
             {plants.map((plant, i) => (
               <li key={plant.id} className="flex items-baseline gap-3">
-                <span className="text-xs tabular-nums text-muted-foreground w-6 shrink-0">{String(i + 1).padStart(2, "0")}</span>
-                <a href={`#plant-${plant.id}`} className="flex-1 flex items-baseline gap-2 no-underline group">
-                  <span className="text-sm text-foreground group-hover:text-primary transition-colors">{plant.common_name}</span>
+                <span className="text-xs tabular-nums text-muted-foreground w-6 shrink-0">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <a
+                  href={`#plant-${plant.id}`}
+                  className="flex-1 flex items-baseline gap-2 no-underline group"
+                >
+                  <span className="text-sm text-foreground group-hover:text-primary transition-colors">
+                    {plant.common_name}
+                  </span>
                   <span className="flex-1 border-b border-dashed border-border/60 mb-0.5" />
-                  <span className="text-xs italic text-muted-foreground shrink-0">{plant.latin_name}</span>
+                  <span className="text-xs italic text-muted-foreground shrink-0">
+                    {plant.latin_name}
+                  </span>
                 </a>
               </li>
             ))}
             {references.length > 0 && (
               <li className="flex items-baseline gap-3 pt-1 border-t border-border/40">
-                <span className="text-xs tabular-nums text-muted-foreground w-6 shrink-0">—</span>
-                <a href="#references" className="text-sm text-foreground hover:text-primary transition-colors no-underline">References</a>
+                <span className="text-xs tabular-nums text-muted-foreground w-6 shrink-0">
+                  —
+                </span>
+                <a
+                  href="#references"
+                  className="text-sm text-foreground hover:text-primary transition-colors no-underline"
+                >
+                  References
+                </a>
               </li>
             )}
           </ol>
@@ -116,41 +149,75 @@ export default function GardenBookletView({ title, subtitle, plants, generatedFo
             >
               <div className="grid grid-cols-1 md:grid-cols-3">
                 <div className="p-5 border-b md:border-b-0 md:border-r border-border/50 space-y-3">
-                  <p className="text-xs font-medium text-muted-foreground tabular-nums">#{String(i + 1).padStart(2, "0")}</p>
-                  <h3 className="text-lg font-display font-bold text-foreground leading-tight">{plant.common_name}</h3>
-                  <p className="text-sm italic text-muted-foreground">{plant.latin_name}</p>
+                  <p className="text-xs font-medium text-muted-foreground tabular-nums">
+                    #{String(i + 1).padStart(2, "0")}
+                  </p>
+                  <h3 className="text-lg font-display font-bold text-foreground leading-tight">
+                    {plant.common_name}
+                  </h3>
+                  <p className="text-sm italic text-muted-foreground">
+                    {plant.latin_name}
+                  </p>
                   <button
                     type="button"
-                    onClick={() => plant.image_url && setLightbox({ src: plant.image_url, alt: plant.common_name })}
+                    onClick={() =>
+                      plant.image_url &&
+                      setLightbox({
+                        src: plant.image_url,
+                        alt: plant.common_name,
+                      })
+                    }
                     className="w-full aspect-[4/3] rounded-xl bg-secondary border border-border/50 overflow-hidden flex items-center justify-center"
                     disabled={!plant.image_url}
-                    title={plant.image_url ? "Click to zoom image" : "No image available"}
+                    title={
+                      plant.image_url
+                        ? "Click to zoom image"
+                        : "No image available"
+                    }
                   >
                     {plant.image_url ? (
-                      <img src={plant.image_url} alt={plant.common_name} className="w-full h-full object-contain p-2" />
+                      <img
+                        src={plant.image_url}
+                        alt={plant.common_name}
+                        className="w-full h-full object-contain p-2"
+                      />
                     ) : (
                       <Leaf className="text-primary/30" size={30} />
                     )}
                   </button>
-                  <p className="text-[11px] text-muted-foreground">Tap image to zoom</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Tap image to zoom
+                  </p>
                 </div>
 
                 <div className="p-5 border-b md:border-b-0 md:border-r border-border/50">
-                  <h4 className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">Overview</h4>
+                  <h4 className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
+                    Overview
+                  </h4>
                   <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
-                    {plant.overview || "No overview available for this plant yet."}
+                    {plant.overview ||
+                      "No overview available for this plant yet."}
                   </p>
                 </div>
 
                 <div className="p-5">
-                  <h4 className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">Seasonal Care</h4>
+                  <h4 className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
+                    Seasonal Care
+                  </h4>
                   <div className="space-y-2">
                     {seasons.map(({ key, label, emoji }) => {
                       const text = plant[key] as string | null;
                       return (
-                        <div key={key} className="rounded-lg bg-secondary/60 px-3 py-2 border border-border/40">
-                          <p className="text-xs font-semibold text-foreground">{emoji} {label}</p>
-                          <p className="text-xs text-muted-foreground leading-relaxed mt-1">{text || "No care instructions."}</p>
+                        <div
+                          key={key}
+                          className="rounded-lg bg-secondary/60 px-3 py-2 border border-border/40"
+                        >
+                          <p className="text-xs font-semibold text-foreground">
+                            {emoji} {label}
+                          </p>
+                          <p className="text-xs text-muted-foreground leading-relaxed mt-1">
+                            {text || "No care instructions."}
+                          </p>
                         </div>
                       );
                     })}
@@ -168,11 +235,18 @@ export default function GardenBookletView({ title, subtitle, plants, generatedFo
             animate={{ opacity: 1, y: 0 }}
             className="card-botanical p-6 space-y-3 print:break-before-page"
           >
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-primary">References</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-primary">
+              References
+            </h2>
             <ol className="space-y-2 list-decimal list-inside">
               {references.map((plant) => (
-                <li key={plant.id} className="text-sm text-muted-foreground leading-relaxed">
-                  <span className="text-foreground font-medium">{plant.common_name}</span>
+                <li
+                  key={plant.id}
+                  className="text-sm text-muted-foreground leading-relaxed"
+                >
+                  <span className="text-foreground font-medium">
+                    {plant.common_name}
+                  </span>
                   {" ("}
                   <span className="italic">{plant.latin_name}</span>
                   {"). "}

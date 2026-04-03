@@ -1,17 +1,30 @@
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Leaf, Copy, Trash2, Settings, X, Loader2, FileText } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { toast } from 'sonner';
-import { createGardenApi, deleteGardenApi, getGardensApi } from '@/lib/api/gardens';
-import { getApiError } from '@/lib/apiClient';
-import type { GardenWithOwner } from '@/lib/api/types';
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Plus,
+  Leaf,
+  Copy,
+  Trash2,
+  Settings,
+  X,
+  Loader2,
+  FileText,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import {
+  createGardenApi,
+  deleteGardenApi,
+  getGardensApi,
+} from "@/lib/api/gardens";
+import { getApiError } from "@/lib/apiClient";
+import type { GardenWithOwner } from "@/lib/api/types";
 
 export default function AdminDashboard() {
   const [gardens, setGardens] = useState<GardenWithOwner[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [newGardenName, setNewGardenName] = useState('');
+  const [newGardenName, setNewGardenName] = useState("");
   const [creating, setCreating] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -39,7 +52,7 @@ export default function AdminDashboard() {
       // Reload to get full GardenWithOwner shape
       const updated = await getGardensApi();
       setGardens(updated);
-      setNewGardenName('');
+      setNewGardenName("");
       setShowCreate(false);
       toast.success(`Garden created — ID: ${garden.garden_code}`);
     } catch (err) {
@@ -53,9 +66,9 @@ export default function AdminDashboard() {
     setDeleting(id);
     try {
       await deleteGardenApi(id);
-      setGardens(prev => prev.filter(g => g.id !== id));
+      setGardens((prev) => prev.filter((g) => g.id !== id));
       setConfirmDelete(null);
-      toast.success('Garden deleted');
+      toast.success("Garden deleted");
     } catch (err) {
       toast.error(getApiError(err));
     } finally {
@@ -65,7 +78,7 @@ export default function AdminDashboard() {
 
   function copyCode(code: string) {
     navigator.clipboard.writeText(code);
-    toast.success('Garden ID copied!');
+    toast.success("Garden ID copied!");
   }
 
   if (isLoading) {
@@ -79,7 +92,9 @@ export default function AdminDashboard() {
   return (
     <div className="page-enter max-w-4xl mx-auto px-4 py-6 md:px-8 md:py-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">Gardens</h1>
+        <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">
+          Gardens
+        </h1>
         <button
           type="button"
           onClick={() => setShowCreate(true)}
@@ -100,9 +115,13 @@ export default function AdminDashboard() {
           >
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h3 className="text-lg font-display font-semibold text-foreground">{garden.name}</h3>
+                <h3 className="text-lg font-display font-semibold text-foreground">
+                  {garden.name}
+                </h3>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="font-mono text-sm text-primary font-semibold">{garden.garden_code}</span>
+                  <span className="font-mono text-sm text-primary font-semibold">
+                    {garden.garden_code}
+                  </span>
                   <button
                     type="button"
                     onClick={() => copyCode(garden.garden_code)}
@@ -114,7 +133,8 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <span className="text-xs text-muted-foreground bg-secondary px-2.5 py-1 rounded-full">
-                <Leaf size={12} className="inline mr-1" />{garden.plant_count} plants
+                <Leaf size={12} className="inline mr-1" />
+                {garden.plant_count} plants
               </span>
             </div>
 
@@ -126,12 +146,18 @@ export default function AdminDashboard() {
                     {garden.owner_name.charAt(0)}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-foreground">{garden.owner_name}</p>
-                    <p className="text-xs text-muted-foreground">{garden.owner_email}</p>
+                    <p className="text-sm font-medium text-foreground">
+                      {garden.owner_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {garden.owner_email}
+                    </p>
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground italic">No owner yet</p>
+                <p className="text-sm text-muted-foreground italic">
+                  No owner yet
+                </p>
               )}
             </div>
 
@@ -157,7 +183,11 @@ export default function AdminDashboard() {
                     disabled={deleting === garden.id}
                     className="pill-button bg-destructive text-destructive-foreground text-sm font-medium disabled:opacity-60"
                   >
-                    {deleting === garden.id ? <Loader2 size={14} className="animate-spin" /> : 'Confirm'}
+                    {deleting === garden.id ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      "Confirm"
+                    )}
                   </button>
                   <button
                     type="button"
@@ -185,7 +215,9 @@ export default function AdminDashboard() {
         <div className="text-center py-20">
           <Leaf className="mx-auto text-muted-foreground/20 mb-4" size={56} />
           <p className="text-muted-foreground mb-2">No gardens yet</p>
-          <p className="text-sm text-muted-foreground/70">Create your first garden to get started</p>
+          <p className="text-sm text-muted-foreground/70">
+            Create your first garden to get started
+          </p>
         </div>
       )}
 
@@ -193,32 +225,46 @@ export default function AdminDashboard() {
       <AnimatePresence>
         {showCreate && (
           <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-foreground/20 backdrop-blur-sm flex items-end md:items-center justify-center"
             onClick={() => setShowCreate(false)}
           >
             <motion.div
-              initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
+              initial={{ y: 100 }}
+              animate={{ y: 0 }}
+              exit={{ y: 100 }}
               className="w-full max-w-md bg-card rounded-t-3xl md:rounded-3xl p-6 space-y-4 garden-shadow-lg"
-              onClick={e => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between">
-                <h3 className="font-display font-semibold text-foreground">Create Garden</h3>
-                <button type="button" onClick={() => setShowCreate(false)} title="Close">
+                <h3 className="font-display font-semibold text-foreground">
+                  Create Garden
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowCreate(false)}
+                  title="Close"
+                >
                   <X size={20} className="text-muted-foreground" />
                 </button>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5">Garden Name</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  Garden Name
+                </label>
                 <input
                   value={newGardenName}
-                  onChange={e => setNewGardenName(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleCreate()}
+                  onChange={(e) => setNewGardenName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleCreate()}
                   placeholder="e.g. The Rose Cottage Garden"
                   className="w-full px-4 py-3 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground text-sm focus:ring-2 focus:ring-primary/30 focus:outline-none"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">A unique Garden ID (GK-XXXX) will be generated automatically.</p>
+              <p className="text-xs text-muted-foreground">
+                A unique Garden ID (GK-XXXX) will be generated automatically.
+              </p>
               <button
                 type="button"
                 onClick={handleCreate}

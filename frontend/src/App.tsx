@@ -49,8 +49,14 @@ function App() {
                 <Route path="/admin/plants" element={<AdminPlants />} />
                 <Route path="/admin/chat" element={<AdminAIChat />} />
                 <Route path="/admin/settings" element={<AdminSettings />} />
-                <Route path="/admin/gardens/:gardenId" element={<ManageGarden />} />
-                <Route path="/admin/gardens/:gardenId/booklet" element={<GardenBooklet />} />
+                <Route
+                  path="/admin/gardens/:gardenId"
+                  element={<ManageGarden />}
+                />
+                <Route
+                  path="/admin/gardens/:gardenId/booklet"
+                  element={<GardenBooklet />}
+                />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>

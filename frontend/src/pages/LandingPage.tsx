@@ -1,48 +1,66 @@
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Leaf, Droplets, Sun, Brain, Bell, BookOpen, ArrowRight, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import landingHero from '@/assets/landing-hero.jpg';
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  Leaf,
+  Droplets,
+  Sun,
+  Brain,
+  Bell,
+  BookOpen,
+  ArrowRight,
+  Sparkles,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import landingHero from "@/assets/landing-hero.jpg";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.12, duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+    transition: {
+      delay: i * 0.12,
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1] as const,
+    },
   }),
 };
 
 const features = [
   {
     icon: Leaf,
-    title: 'Plant Library',
-    description: 'Browse your personalised garden with detailed care guides for every plant.',
+    title: "Plant Library",
+    description:
+      "Browse your personalised garden with detailed care guides for every plant.",
   },
   {
     icon: Brain,
-    title: 'AI Plant Doctor',
-    description: 'Chat with our AI assistant for instant diagnosis and care advice.',
+    title: "AI Plant Doctor",
+    description:
+      "Chat with our AI assistant for instant diagnosis and care advice.",
   },
   {
     icon: Bell,
-    title: 'Smart Reminders',
-    description: 'Never miss a watering or feeding schedule again.',
+    title: "Smart Reminders",
+    description: "Never miss a watering or feeding schedule again.",
   },
   {
     icon: Droplets,
-    title: 'Care Tracking',
-    description: 'Log watering, feeding, and repotting to keep your plants thriving.',
+    title: "Care Tracking",
+    description:
+      "Log watering, feeding, and repotting to keep your plants thriving.",
   },
   {
     icon: Sun,
-    title: 'Health Monitoring',
-    description: 'Track each plant\'s health status at a glance with visual indicators.',
+    title: "Health Monitoring",
+    description:
+      "Track each plant's health status at a glance with visual indicators.",
   },
   {
     icon: BookOpen,
-    title: 'Garden Booklet',
-    description: 'A beautiful digital booklet of your entire garden collection.',
+    title: "Garden Booklet",
+    description:
+      "A beautiful digital booklet of your entire garden collection.",
   },
 ];
 
@@ -54,13 +72,15 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
           <div className="flex items-center gap-2">
             <Leaf className="h-6 w-6 text-primary" />
-            <span className="font-display text-xl font-semibold text-foreground">Shagari Garden Management</span>
+            <span className="font-display text-xl font-semibold text-foreground">
+              Shagari
+            </span>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" asChild>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" asChild className="hidden sm:inline-flex">
               <Link to="/login">Sign in</Link>
             </Button>
-            <Button asChild className="pill-button">
+            <Button asChild className="pill-button text-sm px-4 py-2">
               <Link to="/login?view=signup">Get Started</Link>
             </Button>
           </div>
@@ -70,11 +90,7 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="relative pt-32 pb-20 md:pt-44 md:pb-32">
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            className="space-y-6"
-          >
+          <motion.div initial="hidden" animate="visible" className="space-y-6">
             <motion.div variants={fadeUp} custom={0}>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary text-secondary-foreground text-sm font-medium">
                 <Sparkles className="h-3.5 w-3.5" />
@@ -95,16 +111,27 @@ export default function LandingPage() {
               custom={2}
               className="text-lg text-muted-foreground max-w-md leading-relaxed"
             >
-              Shagari Garden Management helps you track, nurture, and understand every plant in your collection — with smart reminders and AI-powered advice.
+              Shagari helps you track, nurture, and understand
+              every plant in your collection — with smart reminders and
+              AI-powered advice.
             </motion.p>
-            <motion.div variants={fadeUp} custom={3} className="flex gap-3 pt-2">
-              <Button size="lg" asChild className="pill-button gap-2 text-base">
+            <motion.div
+              variants={fadeUp}
+              custom={3}
+              className="flex flex-col sm:flex-row gap-3 pt-2"
+            >
+              <Button size="lg" asChild className="pill-button gap-2 text-base w-full sm:w-auto">
                 <Link to="/login?view=signup">
                   Start for free
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="pill-button text-base">
+              <Button
+                size="lg"
+                variant="outline"
+                asChild
+                className="pill-button text-base w-full sm:w-auto"
+              >
                 <Link to="/login">Sign in</Link>
               </Button>
             </motion.div>
@@ -128,8 +155,12 @@ export default function LandingPage() {
                 <Leaf className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-foreground">12 plants thriving</p>
-                <p className="text-xs text-muted-foreground">All healthy today</p>
+                <p className="text-sm font-semibold text-foreground">
+                  12 plants thriving
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  All healthy today
+                </p>
               </div>
             </div>
           </motion.div>
@@ -142,7 +173,7 @@ export default function LandingPage() {
           <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-80px' }}
+            viewport={{ once: true, margin: "-80px" }}
             className="text-center mb-16"
           >
             <motion.h2
@@ -157,14 +188,15 @@ export default function LandingPage() {
               custom={1}
               className="mt-4 text-muted-foreground text-lg max-w-lg mx-auto"
             >
-              From daily care reminders to AI diagnostics, Shagari Garden Management is your personal plant companion.
+              From daily care reminders to AI diagnostics, Shagari Garden
+              Management is your personal plant companion.
             </motion.p>
           </motion.div>
 
           <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={{ once: true, margin: "-60px" }}
             className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {features.map((feature, i) => (
@@ -209,10 +241,15 @@ export default function LandingPage() {
             custom={1}
             className="mt-4 text-lg text-muted-foreground max-w-md mx-auto"
           >
-            Join Shagari Garden Management and give your plants the care they deserve.
+            Join Shagari and give your plants the care they
+            deserve.
           </motion.p>
           <motion.div variants={fadeUp} custom={2} className="mt-8">
-            <Button size="lg" asChild className="pill-button gap-2 text-base px-8">
+            <Button
+              size="lg"
+              asChild
+              className="pill-button gap-2 text-base px-8"
+            >
               <Link to="/login?view=signup">
                 Create your garden
                 <ArrowRight className="h-4 w-4" />
@@ -227,9 +264,11 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <Leaf className="h-4 w-4" />
-            <span>© 2026 Shagari Garden Management</span>
+            <span>© 2026 Shagari</span>
           </div>
-          <p className="text-xs text-muted-foreground">Made with care for plant lovers.</p>
+          <p className="text-xs text-muted-foreground">
+            Made with care for plant lovers.
+          </p>
         </div>
       </footer>
     </div>

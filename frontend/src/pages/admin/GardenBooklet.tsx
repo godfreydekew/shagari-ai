@@ -41,7 +41,11 @@ export default function GardenBooklet() {
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
         <Leaf className="text-muted-foreground/20" size={48} />
         <p className="text-muted-foreground">{error ?? "Garden not found"}</p>
-        <button type="button" onClick={() => navigate(-1)} className="text-sm text-primary font-medium">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="text-sm text-primary font-medium"
+        >
           Go back
         </button>
       </div>
