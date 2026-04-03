@@ -144,16 +144,40 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
 @router.post("/signup", response_model=UserPublic)
 def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     """
-    Create new user without the need to be logged in.
+    Create new user without being logged in.
+    If garden_code is provided, validates it exists and links the new user as its owner.
     """
-    user = crud.get_user_by_email(session=session, email=user_in.email)
-    if user:
+    from app.models import Garden
+
+    existing = crud.get_user_by_email(session=session, email=user_in.email)
+    if existing:
         raise HTTPException(
             status_code=400,
             detail="The user with this email already exists in the system",
         )
+
+    garden: Garden | None = None
+    if user_in.garden_code:
+        garden = crud.get_garden_by_code(session=session, garden_code=user_in.garden_code)
+        if not garden:
+            raise HTTPException(
+                status_code=404,
+                detail="Garden ID not found. Please check with your GardenKeeper team.",
+            )
+        if garden.owner_id is not None:
+            raise HTTPException(
+                status_code=409,
+                detail="This garden already has an owner.",
+            )
+
     user_create = UserCreate.model_validate(user_in)
     user = crud.create_user(session=session, user_create=user_create)
+
+    if garden:
+        garden.owner_id = user.id
+        session.add(garden)
+        session.commit()
+
     return user
 
 

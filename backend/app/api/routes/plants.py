@@ -1,100 +1,162 @@
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import col, func, select
+from fastapi import APIRouter, HTTPException
+from sqlmodel import select
 
 from app import crud
-from app.api.deps import (
-    CurrentUser,
-    SessionDep,
-    get_current_active_superuser,
+from app.api.deps import AdminUser, CurrentUser, SessionDep
+from app.models import (
+    Garden,
+    LibraryPlant,
+    Message,
+    PlantCreate,
+    PlantCreateFromLibrary,
+    PlantPublic,
+    PlantsPublic,
+    PlantUpdate,
 )
-from app.models import Plant, PlantCreate, PlantUpdate, PlantsPublic, PlantPublic, Message
 
-router = APIRouter(prefix="/plants", tags=["plants"])
+router = APIRouter(prefix="/gardens/{garden_id}/plants", tags=["plants"])
+
+
+def _get_garden_for_read(session: Any, garden_id: uuid.UUID, current_user: Any) -> Garden:
+    """
+    Allow garden read access to:
+    - Admins / superusers who created the garden
+    - The client who owns the garden
+    """
+    garden = session.get(Garden, garden_id)
+    if not garden:
+        raise HTTPException(status_code=404, detail="Garden not found")
+
+    if current_user.is_admin or current_user.is_superuser:
+        if garden.created_by != current_user.id:
+            raise HTTPException(status_code=403, detail="Garden not found")
+    else:
+        if garden.owner_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Garden not found")
+
+    return garden
+
+
+def _require_admin_garden(session: Any, garden_id: uuid.UUID, admin_id: uuid.UUID) -> Garden:
+    garden = crud.get_garden_for_admin(
+        session=session, garden_id=garden_id, admin_id=admin_id
+    )
+    if not garden:
+        raise HTTPException(status_code=404, detail="Garden not found")
+    return garden
+
+
+# ─── Read (admin + garden owner) ─────────────────────────────────────────────
 
 @router.get("/", response_model=PlantsPublic)
 def read_plants(
-    session: SessionDep,
     garden_id: uuid.UUID,
-    skip: int = 0, 
-    limit: int = 100
+    session: SessionDep,
+    current_user: CurrentUser,
+    skip: int = 0,
+    limit: int = 100,
 ) -> Any:
     """
-    Retrieve plants.
+    List all plants in a garden.
+    Accessible by the admin who created the garden or the client who owns it.
     """
-    base_condition = Plant.garden_id == garden_id
-    count_statement = select(func.count()).select_from(Plant).where(base_condition)
-    count = session.exec(count_statement).one()
-    
-    statement = (
-        select(Plant).where(base_condition).order_by(col(Plant.created_at).desc()).offset(skip).limit(limit)
+    _get_garden_for_read(session, garden_id, current_user)
+    plants, count = crud.get_plants_for_garden(
+        session=session, garden_id=garden_id, skip=skip, limit=limit
     )
-    
-    plants = session.exec(statement).all()
-    if not plants:
-        raise HTTPException(status_code=404, detail="No plants found for this garden")
     return PlantsPublic(data=plants, count=count)
 
-@router.post("/{garden_id}", response_model=PlantPublic)
-def create_plant(
-    session: SessionDep,
-    plant_in: PlantCreate,
+
+@router.get("/{plant_id}", response_model=PlantPublic)
+def read_plant(
     garden_id: uuid.UUID,
+    plant_id: uuid.UUID,
+    session: SessionDep,
+    current_user: CurrentUser,
 ) -> Any:
     """
-    Create a new plant.
+    Get a single plant.
+    Accessible by the admin who created the garden or the client who owns it.
     """
-    plant = Plant.model_validate(plant_in, update={"garden_id": garden_id})
-    session.add(plant)
-    session.commit()
-    session.refresh(plant)
+    _get_garden_for_read(session, garden_id, current_user)
+    plant = crud.get_plant_in_garden(session=session, plant_id=plant_id, garden_id=garden_id)
+    if not plant:
+        raise HTTPException(status_code=404, detail="Plant not found in this garden")
     return plant
 
-@router.delete("/{plant_id}", response_model=PlantPublic)
-def delete_plant(
-    session: SessionDep, 
-    plant_id: uuid.UUID,
-    garden_id: uuid.UUID,
-    current_user: CurrentUser
-    ) -> Message:
-    """
-    Delete a plant.
-    """
-    plant = session.get(Plant, plant_id)
-    
-    if not plant:
-        raise HTTPException(status_code=404, detail="Plant not found")
-    if plant.garden_id != garden_id:
-        raise HTTPException(status_code=403, detail="Plant not found in this garden")
 
-    session.delete(plant)
-    session.commit()
-    session.refresh(plant)
-    return Message(message="Plant deleted successfully")
+# ─── Write (admin only) ───────────────────────────────────────────────────────
+
+@router.post("/", response_model=PlantPublic, status_code=201)
+def create_plant(
+    garden_id: uuid.UUID,
+    plant_in: PlantCreate,
+    session: SessionDep,
+    current_user: AdminUser,
+) -> Any:
+    """Add a new plant (from scratch) to a garden."""
+    _require_admin_garden(session, garden_id, current_user.id)
+    return crud.create_plant(session=session, plant_in=plant_in, garden_id=garden_id)
+
+
+@router.post("/from-library", response_model=PlantPublic, status_code=201)
+def create_plant_from_library(
+    garden_id: uuid.UUID,
+    body: PlantCreateFromLibrary,
+    session: SessionDep,
+    current_user: AdminUser,
+) -> Any:
+    """Copy a library plant into this garden as an independent plant record."""
+    _require_admin_garden(session, garden_id, current_user.id)
+
+    library_plant = session.get(LibraryPlant, body.library_plant_id)
+    if not library_plant or library_plant.created_by != current_user.id:
+        raise HTTPException(status_code=404, detail="Library plant not found")
+
+    existing_plants, _ = crud.get_plants_for_garden(session=session, garden_id=garden_id)
+    if any(p.library_plant_id == library_plant.id for p in existing_plants):
+        raise HTTPException(
+            status_code=409,
+            detail=f"{library_plant.common_name} is already in this garden",
+        )
+
+    return crud.create_plant_from_library(
+        session=session, library_plant=library_plant, garden_id=garden_id
+    )
+
 
 @router.patch("/{plant_id}", response_model=PlantPublic)
 def update_plant(
-    plant_id: uuid.UUID, 
-    plant_update: PlantUpdate, 
+    garden_id: uuid.UUID,
+    plant_id: uuid.UUID,
+    plant_in: PlantUpdate,
     session: SessionDep,
-    current_user: CurrentUser
-    ) -> PlantPublic:
-    """
-    Update a plant.
-    """
-    db_plant = session.get(Plant, plant_id)
-    if db_plant.garden_id != current_user.garden_id:
-        raise HTTPException(status_code=403, detail="Plant not found in this garden")
-    if not db_plant:
-        raise HTTPException(status_code=404, detail="Plant not found")
-    plant_data = plant_update.model_dump(exclude_unset=True)
-    db_plant.sqlmodel_update(plant_data)
-    session.add(db_plant)
+    current_user: AdminUser,
+) -> Any:
+    """Update a plant in a garden."""
+    _require_admin_garden(session, garden_id, current_user.id)
+    plant = crud.get_plant_in_garden(session=session, plant_id=plant_id, garden_id=garden_id)
+    if not plant:
+        raise HTTPException(status_code=404, detail="Plant not found in this garden")
+    return crud.update_plant(session=session, db_plant=plant, plant_in=plant_in)
+
+
+@router.delete("/{plant_id}", response_model=Message)
+def delete_plant(
+    garden_id: uuid.UUID,
+    plant_id: uuid.UUID,
+    session: SessionDep,
+    current_user: AdminUser,
+) -> Message:
+    """Remove a plant from a garden (also deletes its reminders)."""
+    _require_admin_garden(session, garden_id, current_user.id)
+    plant = crud.get_plant_in_garden(session=session, plant_id=plant_id, garden_id=garden_id)
+    if not plant:
+        raise HTTPException(status_code=404, detail="Plant not found in this garden")
+    name = plant.common_name
+    session.delete(plant)
     session.commit()
-    session.refresh(db_plant)
-    return db_plant
-    
-    
-    
+    return Message(message=f"{name} removed from garden")
